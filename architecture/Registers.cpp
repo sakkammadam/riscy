@@ -8,7 +8,7 @@ RegisterWrapper::RegisterWrapper() {
 // Constructor to set register name
 RegisterWrapper::RegisterWrapper(std::string name) {
     this->registerName = name;
-    this->registerValue = -1;
+    this->registerValue = 0;
 }
 
 // Getter Register name
