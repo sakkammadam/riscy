@@ -57,12 +57,14 @@ std::vector<std::string> Parser::getTokenInstructions() {
 void Parser::tokenToBinary() {
     // reserve temp
     binaryPrep tempBinary;
+    assemblyPrep tempAssembly;
     // parse the tokens
     for(int i = 0; i < this->getTokenInstructions().size(); i++){
         if(i==0){
             // first token will always be an instruction
             if(opCodeMap.count(this->getTokenInstructions()[i]) > 0) {
                 tempBinary.opCode = opCodeMap[this->getTokenInstructions()[i]];
+                tempAssembly.opCode = this->getTokenInstructions()[i];
             }
         } else{
             // remaining tokens will either registers or numbers
@@ -70,10 +72,13 @@ void Parser::tokenToBinary() {
                 // if 1st register
                 if(i==1){
                     tempBinary.destReg = regCodeMap[this->getTokenInstructions()[i]];
+                    tempAssembly.destReg = this->getTokenInstructions()[i];
                 } else if(i==2){
                     tempBinary.firstReg = regCodeMap[this->getTokenInstructions()[i]];
+                    tempAssembly.firstReg = this->getTokenInstructions()[i];
                 } else if(i==3){
                     tempBinary.secondReg = regCodeMap[this->getTokenInstructions()[i]];
+                    tempAssembly.secondReg = this->getTokenInstructions()[i];
                 } else {
                     // set nothing
                 }
@@ -83,6 +88,7 @@ void Parser::tokenToBinary() {
                 int fooClean = stoi(removeHash(foo));
                 // save offset
                 tempBinary.offset = std::bitset<8>(fooClean).to_string();
+                tempAssembly.offset = fooClean;
             }
         }
     }
@@ -108,6 +114,7 @@ void Parser::tokenToBinary() {
     // save the rawBinaryInstruction
     this->rawBinaryInstruction = tempBinary.opCode + tempBinary.destReg +
             tempBinary.firstReg + tempBinary.secondReg + tempBinary.unused + tempBinary.offset;
+    this->assemblyInstruction = tempAssembly;
 }
 
 binaryPrep Parser::getBinaryInstructions() {
@@ -116,6 +123,10 @@ binaryPrep Parser::getBinaryInstructions() {
 
 std::string Parser::getRawBinaryInstructions() {
     return this->rawBinaryInstruction;
+}
+
+assemblyPrep Parser::getAssemblyInstructions() {
+    return this->assemblyInstruction;
 }
 
 // complete Constructor
