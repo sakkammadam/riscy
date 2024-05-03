@@ -102,3 +102,13 @@ void ArchitectureWrapper::displayArch() {
     this->displayRegisters();
     this->displayStack();
 }
+
+void ArchitectureWrapper::incRegisterWithValue(std::string register_name, int value) {
+    // iterate over the registers and set the value if there was a hit for the register name
+    for(int i=0; i < this->getArchRegisters().size(); i++){
+        if(register_name == this->getArchRegisters()[i].getRegisterName()){
+            int tmp = this->getArchRegisters()[i].getRegisterValue() + value;
+            this->getArchRegisters()[i].setRegisterValue(tmp);
+        }
+    }
+}
