@@ -23,6 +23,22 @@ struct binaryPrep{
     std::string offset;
 };
 
+// Struct for composing instruction properties in plain english
+struct assemblyPrep{
+    // 1st octet
+    std::string opCode;
+    // 2nd octet
+    std::string destReg;
+    // 3rd octet
+    std::string firstReg;
+    // 4th octet
+    std::string secondReg;
+    // 5th octet ** unused **
+    std::string unused="N/A";
+    // 6th octet
+    int offset;
+};
+
 class Parser{
 
 private:
@@ -32,8 +48,10 @@ private:
     std::vector<std::string> tokenInstruction;
     // Capture binary numbers
     std::string rawBinaryInstruction;
-    // Capture
+    // Capture binary instruction in struct
     binaryPrep binaryInstruction;
+    // Capture assembly instruction in struct
+    assemblyPrep assemblyInstruction;
     // Detect a branch instruction
     // bool jumpInstruction;
 
@@ -84,6 +102,8 @@ public:
     binaryPrep getBinaryInstructions();
     // Getter - return raw binary in string
     std::string getRawBinaryInstructions();
+    // Getter - return assembly in string
+    assemblyPrep getAssemblyInstructions();
 
 };
 
