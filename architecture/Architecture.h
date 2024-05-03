@@ -43,8 +43,10 @@ public:
 
     // Setter - set Register with a value
     void selRegisterWithValue(std::string register_name, int value);
-    // Getter
+    // Getter - return value for a Register
     int getRegisterWithValue(std::string register_name);
+    // Setter - add new value to existing Register value
+    void incRegisterWithValue(std::string register_name, int value);
 
 
 };
