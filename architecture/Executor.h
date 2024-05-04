@@ -11,6 +11,46 @@
 #include <stack>
 #include <string>
 
+// set a struct to capture state
+struct executorState{
+    // all original instructions
+    std::vector<std::string> all_original_instructions;
+    // all assembly inputs
+    std::vector<assemblyPrep> all_assembly_instructions;
+    // all binary inputs
+    std::vector<binaryPrep> all_binary_instructions;
+    // all raw binary outputs
+    std::vector<std::string> all_raw_binary_instructions;
+    // current assembly input
+    assemblyPrep current_assembly_instruction;
+    // current binary input
+    binaryPrep current_binary_instruction;
+    // current raw binary output
+    std::string current_raw_binary_instruction;
+    // current program counter
+    int programCounter;
+    // register values
+    int R0;
+    int R1;
+    int R2;
+    int R3;
+    int R4;
+    int R5;
+    int R6;
+    int R7;
+    int R8;
+    int R9;
+    int R10;
+    int R11;
+    int R12;
+    int R13;
+    int R14;
+    int R15;
+    // current program status
+    bool programStatus = false;
+};
+
+
 class Executor {
 private:
     // declare Architecture Wrapper
@@ -27,10 +67,14 @@ private:
     std::vector<binaryPrep> allBinaryInstructions;
     // all wrapper assembly instructions
     std::vector<assemblyPrep> allAssemblyInstructions;
+    // all original instructions
+    std::vector<std::string> allOriginalInstructions;
     // program counter
     int programCounter;
     // program completion
     bool programComplete=false;
+    // save states of each run
+    std::vector<executorState> executorOutputs;
 
 public:
     // Constructor to set the Architecture
@@ -59,7 +103,8 @@ public:
             std::string arch_name,
             std::vector<assemblyPrep> all_assembly_instructions,
             std::vector<binaryPrep> all_binary_instructions,
-            std::vector<std::string> all_raw_binary_instructions
+            std::vector<std::string> all_raw_binary_instructions,
+            std::vector<std::string> all_original_instructions
             );
 
     // Architecture supporting methods!
@@ -84,11 +129,14 @@ public:
     void loadAllBinaryInstructions(std::vector<binaryPrep> binary_instructions);
     // Setter - load all raw binary instructions
     void loadAllRawBinaryInstructions(std::vector<std::string> raw_binary_instructions);
+    // Setter - load all original instructions
+    void loadAllOriginalInstructions(std::vector<std::string> all_original_instructions);
     // Setter - load all available instructions in the object
     void loadAllInstructions(
             std::vector<assemblyPrep> assembly_instructions,
             std::vector<binaryPrep> binary_instructions,
-            std::vector<std::string> raw_binary_instructions
+            std::vector<std::string> raw_binary_instructions,
+            std::vector<std::string> original_instructions
             );
     // Setter - set current assembly instruction
     void setCurrAssemblyInstruction(assemblyPrep assembly_instruction);
@@ -102,6 +150,12 @@ public:
     binaryPrep getCurrBinaryInstruction();
     // Getter - get current raw binary instruction
     std::string getCurrRawBinaryInstruction();
+    // Getter - get current program counter
+    int getCurrProgramCounter();
+    // Getter - get all executor states
+    std::vector<executorState> getOpExecutorStates();
+    // Getter = get program completion status
+    bool getCompletionStatus();
     // Setter - set all current operating instruction
     void setCurrInstructionAll(
             assemblyPrep assembly_instruction,
