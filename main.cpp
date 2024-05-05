@@ -1,6 +1,10 @@
 #include <fstream>
 #include <iostream>
+#include <sstream>
+#include <string>
+#include <iomanip>
 #include <vector>
+#include <stdexcept>
 #include "architecture/Parser.h"
 #include "architecture/Architecture.h"
 #include "architecture/Executor.h"
@@ -90,19 +94,71 @@ std::string convertExecStatusToJSON(std::vector<executorState> OpState){
     return jsonArrayStr;
 }
 
-int main() {
-    // Use filestream to open a JSON native file
-    std::fstream jsonFile;
-    // Set the location
-    std::string fileLocation = R"(C:\Users\vinee\Documents\sakkamma\CIS655\hw2\tests\instructions.json)";
-    jsonFile.open(fileLocation.c_str(), std::ios::in);
-    // Check if the file opened successfully
-    if (!jsonFile.is_open()) {
-        // Handle error opening file
-        return 1;
+
+
+nlohmann::json parseJsonInput(const std::string& input) {
+    try{
+        return nlohmann::json::parse(input);
+    } catch (const std::exception& e) {
+        throw std::runtime_error("Failed to parse JSON input: " + std::string(e.what()));
     }
-    // parse the filestream as JSON using nlohmann library
-    nlohmann::json jsonData = nlohmann::json::parse(jsonFile);
+}
+
+int main(int argc, char* argv[]) {
+    // if no argument supplied - exit -
+    if(argc == 1){
+        // JSON based exit response
+        std::string jsonExitResponse = R"([{"status": "Exited! Found no instructions to process."}])";
+        // Return to stdout
+        std::cout << jsonExitResponse << std::endl;
+        // Safely exit
+        return 0;
+    }
+
+    // Capture arguments -
+    char* input = argv[1];
+    char* debug = argv[2];
+
+    // declare json variable
+    nlohmann::json jsonData;
+    // if operation was to test, then leverage the instructions.json within tests folder
+    if(std::string(input) == "test"){
+        // Use filestream to open a JSON native file
+        std::fstream jsonFile;
+        // Set the location
+        std::string fileLocation = R"(C:\Users\vinee\Documents\sakkamma\CIS655\hw2\tests\instructions.json)";
+        jsonFile.open(fileLocation.c_str(), std::ios::in);
+        // Check if the file opened successfully
+        if (!jsonFile.is_open()) {
+            // Handle error opening file
+            return 1;
+        }
+        // parse the filestream as JSON using nlohmann library
+        jsonData = nlohmann::json::parse(jsonFile);
+        // Close the file
+        jsonFile.close();
+    } else if(std::string(input) == "exit") {
+        // JSON based exit response
+        std::string jsonExitResponse = R"([{"status": "Exiting!"}])";
+        // Return to stdout
+        std::cout << jsonExitResponse << std::endl;
+        // Safely exit
+        return 0;
+    } else {
+        // debug property was supplied
+        if (debug != nullptr){
+            std::cout << std::string(input) << std::endl;
+        }
+        // use json library to parse downstream
+        try {
+            // try to parse the supplied input as json
+            jsonData = nlohmann::json::parse(std::string(input));
+        } catch (std::runtime_error &runtime_error) {
+            // throw an error!
+            std::cout << "Exception occurred: " << runtime_error.what() << std::endl;
+        }
+    }
+
     // declare a vector all of original instructions;
     std::vector<std::string> allOriginalInstructions;
     // declare a vector of all assembly instructions!
@@ -126,9 +182,6 @@ int main() {
         allRawBinaryInstructions.emplace_back(obj.getRawBinaryInstructions());
     }
 
-    // Close the file
-    jsonFile.close();
-
     // let's invoke the Executor
     Executor operatingRISC = Executor(
             "RISC",
@@ -145,5 +198,6 @@ int main() {
 
     std::cout << operatingRISCResults << std::endl;
 
+    // safely exit
     return 0;
 }
