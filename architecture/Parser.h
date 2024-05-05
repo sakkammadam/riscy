@@ -25,17 +25,17 @@ struct binaryPrep{
 
 // Struct for composing instruction properties in plain english
 struct assemblyPrep{
-    // 1st octet
+    // 1st octet - 4 bits
     std::string opCode;
-    // 2nd octet
+    // 2nd octet - 4 bits
     std::string destReg;
-    // 3rd octet
+    // 3rd octet - 4 bits
     std::string firstReg;
-    // 4th octet
+    // 4th octet - 4 bits
     std::string secondReg;
     // 5th octet ** unused **
     std::string unused="N/A";
-    // 6th octet
+    // 6th octet - 8 bits
     int offset;
 };
 
