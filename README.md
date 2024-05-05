@@ -3,7 +3,43 @@
 ### Introduction
  RISCY is an assembly simulator. It attempts to mimic a load-store ISA (instruction set architecture). 
 
-### Instructions
+### Instruction Set
+ 
+ The instruction set is composed of 32 bits, broken into
+* OpCode - First Octet of 4 bits
+* Destination Register - Second Octet of 4 bits
+* First Register - Third Octet of 4 bits
+* Second Register - Fourth Octet of 4 bits
+* UNUSED - Fifth Octet of 4 bits
+* Offset - Sixth Octet of 8 bits
+
+#### Opcode
+  This is essentially the assembly command. This is represented as a map - 
+    
+            {"LOADI", "0001"}, // LOADI R0, #10
+            {"ADDRR", "0010"}, // ADDRR R1, R2, R3
+            {"ADDRI", "0011"}, // ADDRI R1, #10
+            {"BRNCH", "0100"}, // BRNCH <INSTRUCTION>
+            {"EQUAL", "0101"}, // EQUAL R4, R5, R6
+            {"NQUAL", "0110"}, // NQUAL R4, R5, R6
+            {"CLOSE", "1111"}, // CLOSE
+
+#### Destination Register
+  This is location of the Destination Register. This is represented in a binary format for the location and in code is
+represented by Registers interface.
+
+#### First Register
+This is location of the First Register. This is represented in a binary format for the location and in code is
+represented by Registers interface.
+
+#### Second Register
+This is location of the Second Register. This is represented in a binary format for the location and in code is
+represented by Registers interface.
+
+#### Offset
+This is the memory value of what we are trying to load.
+
+### Commands
 
 #### LOADI
 This instruction is used to load a register with a value
@@ -51,3 +87,18 @@ This instruction is used to compare values between two registers, if not equal s
         .\architecture\Stack.cpp 
         .\architecture\Stack.h 
         -o runRiscy
+
+### Codebase
+  This section will document the underlying C++ classes.
+  
+#### RegisterWrapper
+   TODO
+
+#### ArchitectureWrapper
+   TODO
+
+#### Parser
+   TODO 
+
+#### Executor
+   TODO
