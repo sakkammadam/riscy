@@ -173,6 +173,8 @@ public:
     void baseEqualR(assemblyPrep instruction);
     // Compare values between two registers, if not equal save 1 in a 3rd register, else 0 - used for NQUAL
     void baseNqualR(assemblyPrep instruction);
+    // ** BRANCH ** instruction - checks if first register value is 0, then BRANCH to provided offset
+    void baseBranchR(int program_counter, assemblyPrep instruction);
     // Entry method for executing a single instruction
     void executeInstruction(assemblyPrep instruction);
     // PRIMARY Entry method for executing all instructions

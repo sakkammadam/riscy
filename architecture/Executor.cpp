@@ -130,8 +130,8 @@ Executor::Executor(std::string arch_name, assemblyPrep current_assembly_instruct
     // set architecture
     this->simpleRISC = ArchitectureWrapper(arch_name);
     this->setCurrAssemblyInstruction(current_assembly_instruction);
-    // initialize all program counters to -1 !
-    this->programCounter = -1;
+    // initialize all program counters to 0 !
+    this->programCounter = 0;
     this->programComplete = false;
 }
 
@@ -140,8 +140,8 @@ Executor::Executor(std::string arch_name, binaryPrep current_binary_instruction)
     // set architecture
     this->simpleRISC = ArchitectureWrapper(arch_name);
     this->setCurrBinaryInstruction(current_binary_instruction);
-    // initialize all program counters to -1 !
-    this->programCounter = -1;
+    // initialize all program counters to 0 !
+    this->programCounter = 0;
     this->programComplete = false;
 }
 
@@ -149,8 +149,8 @@ Executor::Executor(std::string arch_name, binaryPrep current_binary_instruction)
 Executor::Executor(std::string arch_name, std::string current_raw_binary_instruction) {
     this->simpleRISC = ArchitectureWrapper(arch_name);
     this->setCurrRawBinaryInstruction(current_raw_binary_instruction);
-    // initialize all program counters to -1 !
-    this->programCounter = -1;
+    // initialize all program counters to 0 !
+    this->programCounter = 0;
     this->programComplete = false;
 }
 
@@ -165,8 +165,8 @@ Executor::Executor(std::string arch_name,
                                 current_binary_instruction,
                                 current_raw_binary_instruction
                                 );
-    // initialize all program counters to -1 !
-    this->programCounter = -1;
+    // initialize all program counters to 0 !
+    this->programCounter = 0;
     this->programComplete = false;
 }
 
@@ -185,8 +185,8 @@ Executor::Executor(std::string arch_name,
             all_raw_binary_instructions,
             all_original_instructions
             );
-    // initialize all program counters to -1 !
-    this->programCounter = -1;
+    // initialize all program counters to 0 !
+    this->programCounter = 0;
     this->programComplete = false;
 }
 
@@ -254,6 +254,20 @@ void Executor::baseNqualR(assemblyPrep instruction) {
     this->programCounter++;
 }
 
+// ** BRANCH ** instruction - checks if first register value is 1, then BRANCH to provided offset
+void Executor::baseBranchR(int program_counter, assemblyPrep instruction) {
+    // Retrieve values from destination register
+    int tmp1 = this->getExecutorRegisterValue(instruction.destReg);
+    // if value is 1 -
+    if(tmp1 == 1){
+        // branch to offset provided
+        this->programCounter = instruction.offset;
+    } else {
+        // increment the program counter as normal
+        this->programCounter++;
+    }
+}
+
 // Entry method for executing a single instruction
 void Executor::executeInstruction(assemblyPrep instruction) {
     // inspect the instruction
@@ -274,7 +288,7 @@ void Executor::executeInstruction(assemblyPrep instruction) {
         this->baseNqualR(instruction);
     } else if(instruction.opCode == "BRNCH"){
         // This instruction is used to branch to another location in execution "memory" a.k.a allAssemblyInstructions
-        // this->baseBrnchR(instruction);
+        this->baseBranchR(this->programCounter, instruction);
     } else {
         // do nothing!
     }
@@ -306,29 +320,29 @@ void Executor::executeAllInstructions() {
     tmp.R13 = this->getExecutorRegisterValue("R13");
     tmp.R14 = this->getExecutorRegisterValue("R14");
     tmp.R15 = this->getExecutorRegisterValue("R15");
-    // set program counter in the struct
-    tmp.programCounter = this->programCounter;
+    // set program counter in the struct to -1 for the "pre-run"
+    tmp.programCounter = -1;
     // declare a vector of executorState structs
     std::vector<executorState> allStates;
     // add tmp to vector
     allStates.emplace_back(tmp);
-    // the "memory" of instructions would be - allAssemblyInstructions
-    // we are iterating it over it and executing them as we go!
-    for(int i=0; i < this->allAssemblyInstructions.size(); i++){
+    while( this->programCounter < this->allAssemblyInstructions.size()){
         // set the current operating assembly instruction
-        this->curAssemblyInstruction = this->allAssemblyInstructions[i];
+        this->curAssemblyInstruction = this->allAssemblyInstructions[this->programCounter];
         // set the current operating binary instruction
-        this->curBinaryInstruction = this->allBinaryInstructions[i];
+        this->curBinaryInstruction = this->allBinaryInstructions[this->programCounter];
         // set the current operating raw binary instruction
-        this->curRawBinaryInstruction = this->allRawBinaryInstructions[i];
+        this->curRawBinaryInstruction = this->allRawBinaryInstructions[this->programCounter];
+        // capture assembly instruction
+        tmp.current_assembly_instruction = this->allAssemblyInstructions[this->programCounter];
+        // capture binary instruction
+        tmp.current_binary_instruction = this->allBinaryInstructions[this->programCounter];
+        // capture raw binary instruction
+        tmp.current_raw_binary_instruction = this->allRawBinaryInstructions[this->programCounter];
+        // set program counter in the struct
+        tmp.programCounter = this->programCounter;
         // execute the instruction
         this->executeInstruction(this->getCurrAssemblyInstruction());
-        // capture assembly instruction
-        tmp.current_assembly_instruction = this->allAssemblyInstructions[i];
-        // capture binary instruction
-        tmp.current_binary_instruction = this->allBinaryInstructions[i];
-        // capture raw binary instruction
-        tmp.current_raw_binary_instruction = this->allRawBinaryInstructions[i];
         // save current state of registers
         tmp.R0 = this->getExecutorRegisterValue("R0");
         tmp.R1 = this->getExecutorRegisterValue("R1");
@@ -346,9 +360,7 @@ void Executor::executeAllInstructions() {
         tmp.R13 = this->getExecutorRegisterValue("R13");
         tmp.R14 = this->getExecutorRegisterValue("R14");
         tmp.R15 = this->getExecutorRegisterValue("R15");
-        // set program counter in the struct
-        tmp.programCounter = this->programCounter;
-        if(i == this->allAssemblyInstructions.size()-1){
+        if(tmp.programCounter == this->allAssemblyInstructions.size()-1){
             // if last instruction - set program status in state to true
             tmp.programStatus = true;
             // Set the program complete flag to true
